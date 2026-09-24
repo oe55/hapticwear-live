@@ -1,0 +1,52 @@
+{
+  "categories": [
+    {
+      "id": "bass-trap",
+      "title": "BASS & TRAP",
+      "blurb": "808s and sub-bass: where the vest responds most.",
+      "tracks": [
+        { "file": "fugitive.m4a", "title": "Fugitive", "artist": "JMHBM", "licence": "CC BY 4.0", "duration": 232 },
+        { "file": "sick-af.m4a", "title": "Sick AF", "artist": "JMHBM", "licence": "CC BY 4.0", "duration": 240 },
+        { "file": "invasion-of-waves.m4a", "title": "Invasion Of Waves", "artist": "1000 Handz", "licence": "CC BY 4.0", "duration": 173 }
+      ]
+    },
+    {
+      "id": "club-afro",
+      "title": "CLUB & AFRO",
+      "blurb": "Amapiano log drums, house and club bass.",
+      "tracks": [
+        { "file": "delela.m4a", "title": "Delela (ft. Lady Lee)", "artist": "Tiga Maine x Mizzer ZA & Kutlwano", "licence": "CC BY 4.0", "duration": 272 },
+        { "file": "aux.m4a", "title": "AUX (Original Mix)", "artist": "Akira Sora", "licence": "CC BY 4.0", "duration": 258 },
+        { "file": "son-of-a-rocket.m4a", "title": "Son of a Rocket", "artist": "Kevin MacLeod", "licence": "CC BY 4.0", "duration": 240 }
+      ]
+    },
+    {
+      "id": "electronic-pop",
+      "title": "ELECTRONIC & POP",
+      "blurb": "Electro house and synth-pop over a heavy kick.",
+      "tracks": [
+        { "file": "dimension.m4a", "title": "Dimension", "artist": "Creo", "licence": "CC BY 4.0", "duration": 192 },
+        { "file": "galaxies.m4a", "title": "Galaxies (ft. Diandra Faye)", "artist": "Jens East", "licence": "CC BY 4.0", "duration": 156 },
+        { "file": "nightrise.m4a", "title": "Nightrise", "artist": "Jens East", "licence": "CC BY 4.0", "duration": 190 }
+      ]
+    },
+    {
+      "id": "cinematic-acoustic",
+      "title": "CINEMATIC & ACOUSTIC",
+      "blurb": "Orchestra and piano: feel the dynamics build.",
+      "tracks": [
+        { "file": "the-great-sea.m4a", "title": "The Great Sea", "artist": "Scott Buckley", "licence": "CC BY 4.0", "duration": 282 },
+        { "file": "mountain-king.m4a", "title": "In the Hall of the Mountain King", "artist": "Grieg · Musopen Symphony", "licence": "PUBLIC DOMAIN", "duration": 154 },
+        { "file": "revolutionary.m4a", "title": "Revolutionary Étude, Op. 10 No. 12", "artist": "Chopin · Edward Neeman", "licence": "PUBLIC DOMAIN", "duration": 165 }
+      ]
+    },
+    {
+      "id": "hapticwear",
+      "title": "HAPTICWEAR",
+      "blurb": "The score from the HapticWear film.",
+      "tracks": [
+        { "file": "hapticwear-film-score.m4a", "title": "HapticWear (Film Score)", "artist": "Omar Essayeh", "licence": "ORIGINAL", "duration": 78 }
+      ]
+    }
+  ]
+}

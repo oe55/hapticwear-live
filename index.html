@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HapticWear — Sound You Can Feel</title>
+  <meta name="description" content="HapticWear: a wearable vest that renders sound as touch. Live frequency analysis drives four vibration motors across the torso.">
+  <meta name="theme-color" content="#09090B">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HapticWear — Sound You Can Feel">
+  <meta property="og:description" content="A wearable vest that renders sound as touch. Open it, press START, and watch the room turn into vibration.">
+  <meta property="og:url" content="https://oe55.github.io/hapticwear-live/">
+  <meta property="og:image" content="https://oe55.github.io/hapticwear-live/assets/img/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="color-scheme" content="dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="preload" href="assets/fonts/jost-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body class="is-booting is-landing">
+
+  <!-- The vest. One transparent WebGL canvas under the interface; the vest is drawn into
+       whichever region is active (landing, model box, full screen). -->
+  <canvas id="gl" class="gl" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- ============================== LANDING ============================== -->
+  <div class="viewport" id="vp-landing">
+    <section class="stage stage--landing" id="landing" aria-label="HapticWear">
+      <div class="landing__vest" id="landing-stage" data-vest-target="landing">
+        <img class="still" src="assets/img/vest-still.webp" alt="The HapticWear vest" loading="lazy" hidden>
+      </div>
+      <div class="landing__copy">
+        <h1 class="wordmark wordmark--hero" aria-label="HapticWear"><span class="wm-a">HAPTIC</span><span class="wm-b">WEAR</span></h1>
+        <p class="tagline">SOUND YOU CAN FEEL</p>
+        <button class="btn btn--start" id="start" type="button">START</button>
+        <p class="landing__hint">MICROPHONE OR MUSIC&nbsp;&nbsp;·&nbsp;&nbsp;BEST WITH HEADPHONES</p>
+      </div>
+      <p class="credit credit--landing">OMAR ESSAYEH&nbsp;&nbsp;·&nbsp;&nbsp;MSC ARCHITECTURAL COMPUTATION&nbsp;&nbsp;·&nbsp;&nbsp;THE BARTLETT UCL</p>
+    </section>
+  </div>
+
+  <!-- ============================= DASHBOARD ============================= -->
+  <div class="viewport" id="vp-dash">
+    <main class="stage stage--dash" id="dashboard" aria-label="HapticWear dashboard">
+
+      <header class="hdr">
+        <div class="wordmark wordmark--hdr" aria-label="HapticWear"><span class="wm-a">HAPTIC</span><span class="wm-b">WEAR</span></div>
+        <nav class="sources" aria-label="Sound source">
+          <button class="src" type="button" data-source="mic" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+            MICROPHONE
+          </button>
+          <button class="src" type="button" data-source="music" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>
+            MUSIC
+          </button>
+        </nav>
+        <div class="hdr__right">
+          <button class="btn btn--line" id="connect" type="button" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>
+            <span id="connect-label">CONNECT VEST</span>
+          </button>
+          <div class="live" id="live" aria-live="polite"><span class="live__dot"></span><span class="live__txt" id="live-txt">LIVE</span></div>
+        </div>
+        <div class="hdr__rule"></div>
+      </header>
+
+      <section class="panel spectrum" aria-label="Live spectrum">
+        <div class="panel__label">SPECTRUM&nbsp;&nbsp;·&nbsp;&nbsp;FFT 1024&nbsp;&nbsp;·&nbsp;&nbsp;<span id="sr">48</span> KHZ</div>
+        <canvas class="spectrum__canvas" id="spec" aria-hidden="true"></canvas>
+      </section>
+
+      <section class="panel meter meter--low" data-band="low" aria-label="Low band">
+        <div class="panel__label">LOW</div>
+        <div class="meter__track"><div class="meter__fill"></div></div>
+        <div class="meter__pct">0%</div>
+      </section>
+      <section class="panel meter meter--mid" data-band="mid" aria-label="Mid band">
+        <div class="panel__label">MID</div>
+        <div class="meter__track"><div class="meter__fill"></div></div>
+        <div class="meter__pct">0%</div>
+      </section>
+      <section class="panel meter meter--high" data-band="high" aria-label="High band">
+        <div class="panel__label">HIGH</div>
+        <div class="meter__track"><div class="meter__fill"></div></div>
+        <div class="meter__pct">0%</div>
+      </section>
+
+      <section class="panel model" id="model-box" role="button" tabindex="0" aria-label="Show the vest full screen">
+        <div class="panel__label">VEST&nbsp;&nbsp;·&nbsp;&nbsp;4 MOTOR ZONES</div>
+        <div class="model__viewport" id="model-viewport" data-vest-target="dashboard">
+          <img class="still" src="assets/img/vest-still.webp" alt="" loading="lazy" hidden>
+        </div>
+        <div class="model__expand" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        </div>
+      </section>
+
+      <section class="panel vib" aria-label="Vibration">
+        <div class="panel__label">VIBRATION</div>
+        <div class="vib__state" id="vib-state">STANDBY</div>
+        <div class="vib__sub" id="vib-sub">—</div>
+        <div class="vib__cal" id="vib-cal" hidden><div class="vib__cal-fill" id="vib-cal-fill"></div></div>
+      </section>
+
+      <div class="row-label row-label--front">FRONT</div>
+      <div class="row-label row-label--back">BACK</div>
+      <section class="motor motor--1" data-motor="0" aria-label="Motor 1, front left"><div class="motor__id">M1</div><div class="motor__name">FRONT LEFT</div><div class="motor__pct">0%</div></section>
+      <section class="motor motor--2" data-motor="1" aria-label="Motor 2, front right"><div class="motor__id">M2</div><div class="motor__name">FRONT RIGHT</div><div class="motor__pct">0%</div></section>
+      <section class="motor motor--3" data-motor="2" aria-label="Motor 3, back left"><div class="motor__id">M3</div><div class="motor__name">BACK LEFT</div><div class="motor__pct">0%</div></section>
+      <section class="motor motor--4" data-motor="3" aria-label="Motor 4, back right"><div class="motor__id">M4</div><div class="motor__name">BACK RIGHT</div><div class="motor__pct">0%</div></section>
+
+      <footer class="panel strip" id="strip" aria-label="Now playing">
+        <div class="strip__transport">
+          <button class="icon" type="button" id="prev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z"/></svg></button>
+          <button class="icon icon--play" type="button" id="play" aria-label="Play or pause">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16"/></svg>
+          </button>
+          <button class="icon" type="button" id="next" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z"/></svg></button>
+        </div>
+        <div class="strip__mic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></div>
+        <div class="strip__now">
+          <span class="strip__title" id="now-title">—</span>
+          <span class="strip__artist" id="now-artist"></span>
+          <span class="tag" id="now-tag" hidden></span>
+        </div>
+        <div class="strip__level" aria-hidden="true"><div class="strip__level-fill" id="mic-level"></div></div>
+        <div class="strip__time" id="now-time"></div>
+        <button class="btn btn--line btn--small" type="button" id="open-library">LIBRARY</button>
+        <div class="strip__progress" aria-hidden="true"><div class="strip__bar" id="now-bar"></div></div>
+      </footer>
+
+      <p class="credit credit--dash">HAPTICWEAR&nbsp;&nbsp;·&nbsp;&nbsp;MSC ARCHITECTURAL COMPUTATION&nbsp;&nbsp;·&nbsp;&nbsp;THE BARTLETT UCL</p>
+
+      <!-- Library: slides over the right-hand column, on the same grid. -->
+      <aside class="drawer" id="drawer" aria-label="Music library" aria-hidden="true">
+        <div class="drawer__head">
+          <div class="panel__label">LIBRARY</div>
+          <button class="icon icon--small" type="button" id="close-library" aria-label="Close library"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <div class="drawer__cats" id="cats" role="tablist"></div>
+        <p class="drawer__blurb" id="cat-blurb"></p>
+        <ol class="drawer__list" id="tracks"></ol>
+        <div class="drop" id="drop" hidden>
+          <input type="file" id="file-input" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.aif,.aiff" multiple hidden>
+          <input type="file" id="folder-input" webkitdirectory multiple hidden>
+          <p class="drop__title">DROP AUDIO FILES OR A FOLDER HERE</p>
+          <p class="drop__sub">
+            <button class="link" type="button" id="pick-files">CHOOSE FILES</button>&nbsp;&nbsp;·&nbsp;&nbsp;<button class="link" type="button" id="pick-folder">CHOOSE A FOLDER</button>
+          </p>
+          <p class="drop__note">Folders become groups. Stored only on this computer, never uploaded.</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ============================== EXPANDED ============================= -->
+  <div class="viewport" id="vp-exp">
+    <section class="stage stage--exp" id="expanded" aria-label="The vest, full screen" aria-hidden="true">
+      <div class="exp__vest" id="expanded-stage" data-vest-target="expanded"></div>
+      <div class="wordmark wordmark--hdr" aria-hidden="true"><span class="wm-a">HAPTIC</span><span class="wm-b">WEAR</span></div>
+      <p class="exp__caption">4 MOTORS&nbsp;&nbsp;·&nbsp;&nbsp;2 FRONT&nbsp;&nbsp;·&nbsp;&nbsp;2 BACK</p>
+      <button class="btn btn--line btn--small exp__close" type="button" id="collapse">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+        DASHBOARD
+      </button>
+      <div class="hbars">
+        <div class="hbar hbar--low"><span class="hbar__label">LOW</span><div class="hbar__track"><div class="hbar__fill"></div></div><span class="hbar__pct">0%</span></div>
+        <div class="hbar hbar--mid"><span class="hbar__label">MID</span><div class="hbar__track"><div class="hbar__fill"></div></div><span class="hbar__pct">0%</span></div>
+        <div class="hbar hbar--high"><span class="hbar__label">HIGH</span><div class="hbar__track"><div class="hbar__fill"></div></div><span class="hbar__pct">0%</span></div>
+      </div>
+    </section>
+  </div>
+  <!-- Motor callouts in the full-screen view, positioned from the 3D projection. -->
+  <div class="callouts" id="callouts" aria-hidden="true">
+    <div class="callout"><i></i><b>M1</b></div><div class="callout"><i></i><b>M2</b></div>
+    <div class="callout"><i></i><b>M3</b></div><div class="callout"><i></i><b>M4</b></div>
+  </div>
+
+  <!-- =============================== STATES ============================== -->
+  <div class="perm" id="perm" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M5 11l7-7 7 7"/></svg>
+    <p class="perm__title">ALLOW THE MICROPHONE</p>
+    <p class="perm__body">Your browser is asking to use the microphone. Choose <b>Allow</b> and the vest listens to the room.</p>
+  </div>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="card" id="card" role="alertdialog" aria-labelledby="card-title" hidden>
+    <p class="card__eyebrow" id="card-eyebrow"></p>
+    <h2 class="card__title" id="card-title"></h2>
+    <p class="card__body" id="card-body"></p>
+    <div class="card__actions">
+      <button class="btn btn--hot" type="button" id="card-primary"></button>
+      <button class="btn btn--line" type="button" id="card-secondary"></button>
+    </div>
+    <div class="card__timer" aria-hidden="true"><div class="card__timer-fill" id="card-timer"></div></div>
+  </div>
+
+  <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+  <div class="idle" id="idle" hidden>
+    <p class="idle__txt">RETURNING TO START IN <b id="idle-count">10</b></p>
+    <p class="idle__sub">TOUCH ANYWHERE TO STAY</p>
+    <div class="idle__bar"><div class="idle__fill" id="idle-fill"></div></div>
+  </div>
+
+  <pre class="diag" id="diag" hidden></pre>
+
+  <noscript><p class="noscript">HapticWear needs JavaScript to listen to sound. Please enable it and reload.</p></noscript>
+</body>
+</html>

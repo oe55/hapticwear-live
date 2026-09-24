@@ -1,0 +1,61 @@
+/* HapticWear design system. Same tokens as the film, the stills and scripts/render_videos.py. */
+
+@font-face {
+  font-family: 'Jost';
+  src: url('../assets/fonts/jost-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/jetbrains-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/jetbrains-mono-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  /* Only the ACTIVE / QUIET state word uses Inter, as in the film. */
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-600.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  /* ground and panels */
+  --bg: #09090B;
+  --panel: #0E0E10;
+  --panel-2: #151518;
+  --border: #1A1A1E;
+  --border-card: #141418;
+  --border-off: #181818;
+
+  /* type */
+  --white: #FFFFFF;
+  --sec: #CECED6;
+  --txt: #AAAAAA;
+  --mut: #444444;
+  --dim: #333333;
+  --ghost: #2D2D2E;
+  --quiet: #222222;
+
+  /* bands: one flat colour each */
+  --low: #FFFFFF;
+  --mid: #00E5FF;
+  --high: #3B1EFF;
+
+  /* type families */
+  --jost: 'Jost', 'Futura', 'Century Gothic', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --inter: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  /* motion */
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);        /* easeInOutCubic, as the 3D transition */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-scene: 950ms;
+}
