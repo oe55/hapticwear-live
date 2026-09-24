@@ -5,6 +5,7 @@ End-to-end smoke test for HapticWear Live, in Chrome (Chromium engine) and Safar
     python tests/smoke.py                 # both engines
     python tests/smoke.py webkit          # one engine
     python tests/smoke.py --shots out/    # also save a screenshot of every state
+    python tests/smoke.py --url https://oe55.github.io/hapticwear-live/   # test the published site
 
 What it checks, per engine:
   - the page loads with nothing at all in the console and no page errors
@@ -135,7 +136,7 @@ def wait_class(page, cls, timeout=8000):
     page.wait_for_function(f'document.body.classList.contains("{cls}")', timeout=timeout)
 
 
-def test_engine(p, engine, base, shots):
+def test_engine(p, engine, base, shots, local=True):
     run = Run(engine, shots)
     print(f'\n{engine}')
     if engine == 'chromium':
@@ -297,6 +298,9 @@ def test_engine(p, engine, base, shots):
 
     # ---- 10. offline: the wifi drops after the first visit -----------------------------------------
     # A server of its own (a fresh origin, so a fresh cache), switched off for real mid-test.
+    if not local:
+        browser.close()
+        return run
     srv, url = serve()
     ctx = browser.new_context(viewport={'width': 1920, 'height': 1080}, device_scale_factor=1)
     page = ctx.new_page()
@@ -336,12 +340,17 @@ def main():
         i = argv.index('--shots')
         shots = argv[i + 1]
         del argv[i:i + 2]
+    url = None
+    if '--url' in argv:
+        i = argv.index('--url')
+        url = argv[i + 1]
+        del argv[i:i + 2]
     engines = argv or ['chromium', 'webkit']
     httpd, base = serve()
     runs = []
     with sync_playwright() as p:
         for e in engines:
-            runs.append(test_engine(p, e, base, shots))
+            runs.append(test_engine(p, e, url or base, shots, local=not url))
     httpd.shutdown()
     print()
     failed = False

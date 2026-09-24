@@ -204,7 +204,9 @@ The test runs 41 checks in both Chrome and WebKit (Safari's engine), with simula
 - the site, the vest and a played track still working after the network goes off;
 - a console with nothing in it.
 
-Add `--shots out/` to save a screenshot of every state.
+Add `--shots out/` to save a screenshot of every state. Add
+`--url https://oe55.github.io/hapticwear-live/` to test the published site instead of the local
+copy; every check except the offline one runs there.
 
 ## Publish (GitHub Pages)
 
